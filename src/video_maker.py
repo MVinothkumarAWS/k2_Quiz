@@ -82,8 +82,8 @@ def create_question_clip(
         total_questions=total_questions,
         score=current_score,
     )
-    clip_question = ImageClip(pil_to_numpy(frame_question)).set_duration(audio_duration)
-    clip_question = clip_question.set_audio(audio_clip)
+    clip_question = ImageClip(pil_to_numpy(frame_question)).with_duration(audio_duration)
+    clip_question = clip_question.with_audio(audio_clip)
     clips.append(clip_question)
 
     # Phase 2: Timer countdown (5 seconds)
@@ -98,7 +98,7 @@ def create_question_clip(
             total_questions=total_questions,
             score=current_score,
         )
-        clip_timer = ImageClip(pil_to_numpy(frame_timer)).set_duration(1)
+        clip_timer = ImageClip(pil_to_numpy(frame_timer)).with_duration(1)
         clips.append(clip_timer)
 
     # Phase 3: Reveal correct answer
@@ -121,7 +121,7 @@ def create_question_clip(
         total_questions=total_questions,
         score=current_score + 1,  # Show updated score
     )
-    clip_reveal = ImageClip(pil_to_numpy(frame_reveal)).set_duration(
+    clip_reveal = ImageClip(pil_to_numpy(frame_reveal)).with_duration(
         config.PAUSE_AFTER_REVEAL + config.FADE_DURATION
     )
     clips.append(clip_reveal)
@@ -296,7 +296,7 @@ def _create_intro_clip(title: str, question_count: int, duration: float = 3.0) -
     sub_x = (width - (bbox[2] - bbox[0])) // 2
     draw.text((sub_x, height // 2 + 40), subtitle, font=sub_font, fill=text_color)
 
-    return ImageClip(pil_to_numpy(img)).set_duration(duration)
+    return ImageClip(pil_to_numpy(img)).with_duration(duration)
 
 
 def _create_outro_clip(final_score: int, total: int, duration: float = 4.0) -> ImageClip:
@@ -333,4 +333,4 @@ def _create_outro_clip(final_score: int, total: int, duration: float = 4.0) -> I
     sub_x = (width - (bbox[2] - bbox[0])) // 2
     draw.text((sub_x, height // 2 + 140), sub_text, font=sub_font, fill=text_color)
 
-    return ImageClip(pil_to_numpy(img)).set_duration(duration)
+    return ImageClip(pil_to_numpy(img)).with_duration(duration)
