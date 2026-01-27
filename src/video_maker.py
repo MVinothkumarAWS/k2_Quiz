@@ -174,7 +174,6 @@ def generate_shorts_video(
             fps=30,
             codec="libx264",
             audio_codec="aac",
-            verbose=False,
             logger=None,
         )
         clip.close()
@@ -259,7 +258,6 @@ def generate_full_video(
             fps=30,
             codec="libx264",
             audio_codec="aac",
-            verbose=False,
             logger=None,
         )
         final_clip.close()
