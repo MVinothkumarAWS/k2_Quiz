@@ -18,7 +18,7 @@ COLORS = {
 }
 
 # Timing (seconds)
-TIMER_DURATION = 3          # countdown seconds (was 5 — reduced to speed up rendering)
+TIMER_DURATION = 5          # countdown seconds
 FADE_DURATION = 0.5
 OPTION_SLIDE_DURATION = 0.3
 PAUSE_AFTER_REVEAL = 1.0
@@ -42,8 +42,7 @@ FONT_OPTION_SIZE = 30
 FONT_TIMER_SIZE = 56
 
 # Reveal phase settings
-REVEAL_DURATION = 10  # Total reveal phase duration in seconds
-ANSWER_DELAY = 3  # Seconds before engagement audio
+REVEAL_DURATION = 4  # Extra seconds to hold reveal frame AFTER answer audio ends
 
 # Channel settings (set once via env; used across video/logo/voice/upload)
 CHANNEL_NAME = os.getenv("K2_CHANNEL_NAME", "K2_Quiz")

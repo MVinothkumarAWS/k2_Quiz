@@ -79,7 +79,7 @@ def prefetch_reveal_images(questions_data: list[dict]) -> dict[int, Image.Image]
 
     def _load_one(item: tuple[int, dict]) -> tuple[int, Optional[Image.Image]]:
         idx, q = item
-        image_setting = q.get("image")
+        image_setting = q.get("image", "auto")
         if not image_setting:
             return idx, None
 
@@ -139,7 +139,7 @@ def create_question_scenes(
     question = question_data["question"]
     options  = question_data["options"]
     correct_index = question_data["correct"]
-    image_setting = question_data.get("image")
+    image_setting = question_data.get("image", "auto")
 
     scenes: List[Tuple] = []
 
@@ -194,7 +194,8 @@ def create_question_scenes(
         highlight_correct=correct_index, timer_value=None, show_image=reveal_image,
         question_num=question_num, total_questions=total_questions, score=current_score + 1,
     )
-    scenes.append((frame_r, a_audio, a_dur + config.ANSWER_DELAY))
+    # Hold reveal frame for full answer audio + extra display time
+    scenes.append((frame_r, a_audio, a_dur + config.REVEAL_DURATION))
 
     return scenes
 
@@ -397,7 +398,7 @@ def _create_outro_frame(final_score: int, total: int) -> Image.Image:
     score_font = get_font(70, bold=True)
     sub_font   = get_font(28)
 
-    title = "Quiz Complete!"
+    title = "வினாடி வினா முடிந்தது!"
     bbox = title_font.getbbox(title)
     draw.text(((width - (bbox[2]-bbox[0])) // 2, height // 2 - 90), title, font=title_font, fill=text_color)
 
@@ -405,7 +406,7 @@ def _create_outro_frame(final_score: int, total: int) -> Image.Image:
     bbox = score_font.getbbox(score_text)
     draw.text(((width - (bbox[2]-bbox[0])) // 2, height // 2), score_text, font=score_font, fill=accent_color)
 
-    sub_text = f"Like & Subscribe to {config.CHANNEL_NAME} for more!"
+    sub_text = f"{config.CHANNEL_NAME} சேனலை லைக் செய்து சப்ஸ்கிரைப் செய்யுங்கள்!"
     bbox = sub_font.getbbox(sub_text)
     draw.text(((width - (bbox[2]-bbox[0])) // 2, height // 2 + 100), sub_text, font=sub_font, fill=text_color)
 
