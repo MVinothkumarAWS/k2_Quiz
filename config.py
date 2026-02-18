@@ -44,7 +44,8 @@ FONT_OPTION_SIZE = 30
 FONT_TIMER_SIZE = 56
 
 # Reveal phase settings
-REVEAL_DURATION = 4  # Extra seconds to hold reveal frame AFTER answer audio ends
+REVEAL_PAUSE_BEFORE_AUDIO = 1.0  # Seconds to show reveal silently before answer voice starts
+REVEAL_DURATION = 4              # Extra seconds to hold reveal frame AFTER answer audio ends
 
 # Channel settings (set once via env; used across video/logo/voice/upload)
 CHANNEL_NAME = os.getenv("K2_CHANNEL_NAME", "K2_Quiz")

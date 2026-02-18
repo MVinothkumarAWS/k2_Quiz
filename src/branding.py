@@ -254,15 +254,57 @@ def _get_cached_logo_overlay(width: int, height: int) -> tuple:
     return _watermark_cache[cache_key]
 
 
+def _get_cached_center_brand(width: int, height: int):
+    """Return (brand_image, bx, by) for center placement, cached by frame size."""
+    cache_key = (width, height, "center_brand")
+    if cache_key in _watermark_cache:
+        return _watermark_cache[cache_key]
+
+    brand_path = Path(config.CHANNEL_BRAND_IMAGE_PATH)
+    if not brand_path.exists():
+        _watermark_cache[cache_key] = None
+        return None
+
+    try:
+        brand = Image.open(str(brand_path)).convert("RGBA")
+
+        # Scale to ~75% of frame width, max 50% of frame height
+        max_w = int(width * 0.75)
+        max_h = int(height * 0.50)
+        brand = brand.copy()
+        brand.thumbnail((max_w, max_h), Image.Resampling.LANCZOS)
+
+        # Apply low opacity — visible but not distracting
+        r, g, b, a = brand.split()
+        a = a.point(lambda p: int(p * 0.12))
+        brand.putalpha(a)
+
+        bx = (width  - brand.width)  // 2
+        by = (height - brand.height) // 2
+        _watermark_cache[cache_key] = (brand, bx, by)
+        return _watermark_cache[cache_key]
+    except Exception:
+        _watermark_cache[cache_key] = None
+        return None
+
+
 def apply_watermark(frame: Image.Image) -> Image.Image:
     """
-    Apply channel logo branding to the bottom-right corner of a frame.
+    Apply two branding layers:
+      1. Brand logo centered in the frame at low opacity (watermark)
+      2. Channel logo in the bottom-right corner
     Returns a new RGB image.
     """
     frame_rgba = frame.convert("RGBA")
     width, height = frame_rgba.size
 
-    # Corner logo only — diagonal text tiles removed (logo is sufficient branding)
+    # ── Layer 1: center brand logo watermark ─────────────────────────────────
+    center_brand = _get_cached_center_brand(width, height)
+    if center_brand is not None:
+        brand_img, bx, by = center_brand
+        frame_rgba.alpha_composite(brand_img, dest=(bx, by))
+
+    # ── Layer 2: corner logo ──────────────────────────────────────────────────
     logo_overlay, lx, ly = _get_cached_logo_overlay(width, height)
     frame_rgba.alpha_composite(logo_overlay, dest=(lx, ly))
 

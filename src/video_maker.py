@@ -203,7 +203,9 @@ def create_question_scenes(
         highlight_correct=correct_index, timer_value=None, show_image=reveal_image,
         question_num=question_num, total_questions=total_questions, score=current_score + 1,
     )
-    # Hold reveal frame for full answer audio + extra display time
+    # Reveal frame — first shown silently so viewer sees answer before hearing it
+    scenes.append((frame_r, None, config.REVEAL_PAUSE_BEFORE_AUDIO))
+    # Then answer audio plays, frame held for full audio + extra display time
     scenes.append((frame_r, a_audio, a_dur + config.REVEAL_DURATION))
 
     return scenes
