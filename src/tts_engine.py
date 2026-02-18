@@ -70,6 +70,7 @@ async def generate_question_audio(
     full_text = question + ". "
     for label, option in zip(option_labels, options):
         full_text += f"{label}: {option}. "
+    full_text += "சரியான பதில் எது? யோசித்து சொல்லுங்கள்."
 
     return await generate_speech(full_text, output_path)
 
@@ -123,17 +124,17 @@ async def generate_engagement_audio(
 
 def generate_tick_sound(
     output_path: Union[str, Path],
-    frequency: int = 800,
-    duration: float = 0.15,
+    frequency: int = 880,
+    duration: float = 0.5,
     sample_rate: int = 44100,
 ) -> Path:
     """
-    Generate a tick/beep sound effect.
+    Generate a tick/beep sound for the countdown timer.
 
     Args:
         output_path: Path to save the audio file
-        frequency: Frequency of the beep in Hz (default 800)
-        duration: Duration of the beep in seconds (default 0.15)
+        frequency: Frequency of the beep in Hz (default 880 = A5, crisp and clear)
+        duration: Duration of the beep in seconds (default 0.5)
         sample_rate: Audio sample rate (default 44100)
 
     Returns:
@@ -141,21 +142,22 @@ def generate_tick_sound(
     """
     output_path = Path(output_path)
 
-    # Generate sine wave
-    t = np.linspace(0, duration, int(sample_rate * duration), False)
-    tone = np.sin(2 * np.pi * frequency * t)
+    total_samples = int(sample_rate * duration)
+    t = np.linspace(0, duration, total_samples, False)
 
-    # Apply fade in/out to avoid clicks
-    fade_samples = int(sample_rate * 0.01)  # 10ms fade
-    fade_in = np.linspace(0, 1, fade_samples)
-    fade_out = np.linspace(1, 0, fade_samples)
-    tone[:fade_samples] *= fade_in
-    tone[-fade_samples:] *= fade_out
+    # Main tone + subtle harmonic for a richer beep
+    tone = np.sin(2 * np.pi * frequency * t) * 0.7
+    tone += np.sin(2 * np.pi * frequency * 2 * t) * 0.15   # one octave up
 
-    # Normalize and convert to 16-bit integers
-    tone = (tone * 32767 * 0.5).astype(np.int16)
+    # Fade in (5ms) and fade out (80ms) to avoid clicks and give natural decay
+    fade_in_samples  = int(sample_rate * 0.005)
+    fade_out_samples = int(sample_rate * 0.08)
+    tone[:fade_in_samples] *= np.linspace(0, 1, fade_in_samples)
+    tone[-fade_out_samples:] *= np.linspace(1, 0, fade_out_samples)
 
-    # Write WAV file
+    # Convert to 16-bit integers at 80% of max
+    tone = (tone * 32767 * 0.8).astype(np.int16)
+
     with wave.open(str(output_path), 'w') as wav_file:
         wav_file.setnchannels(1)
         wav_file.setsampwidth(2)
