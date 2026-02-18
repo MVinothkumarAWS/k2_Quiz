@@ -79,22 +79,23 @@ def hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
 def get_font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
     """Get font with fallback to default."""
     font_paths = [
-        # Try Tamil font first (supports Tamil Unicode)
+        # Try bundled Tamil font first (supports Tamil Unicode)
         Path("fonts/NotoSansTamil/NotoSansTamil-Bold.ttf") if bold else Path("fonts/NotoSansTamil/NotoSansTamil-Regular.ttf"),
         # Fallback to Poppins
         Path("fonts/Poppins/Poppins-Bold.ttf") if bold else Path("fonts/Poppins/Poppins-Medium.ttf"),
         Path("fonts/Poppins-Bold.ttf") if bold else Path("fonts/Poppins-Medium.ttf"),
+        # Linux system Noto Sans Tamil (installed via apt fonts-noto)
+        Path("/usr/share/fonts/truetype/noto/NotoSansTamil-Bold.ttf") if bold else Path("/usr/share/fonts/truetype/noto/NotoSansTamil-Regular.ttf"),
+        Path("/usr/share/fonts/opentype/noto/NotoSansTamil-Bold.ttf") if bold else Path("/usr/share/fonts/opentype/noto/NotoSansTamil-Regular.ttf"),
+        # Linux DejaVu fallback
+        Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf") if bold else Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
     ]
 
     for font_path in font_paths:
         if font_path.exists():
             return ImageFont.truetype(str(font_path), size)
 
-    # Fallback to default
-    try:
-        return ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size)
-    except OSError:
-        return ImageFont.load_default()
+    return ImageFont.load_default()
 
 
 def create_background(format_type: str) -> Image.Image:
