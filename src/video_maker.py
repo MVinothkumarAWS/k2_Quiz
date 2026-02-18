@@ -170,14 +170,23 @@ def create_question_scenes(
     )
     scenes.append((frame_q, q_audio, q_dur))
 
-    # ── Scene 2: Timer countdown (1 s per tick) ───────────────────────────────
+    # ── Silent pause between question audio and countdown ─────────────────────
+    # Prevents the tick from clashing immediately after the TTS voice ends
+    frame_pause = render_question_frame(
+        question=question, options=options, format_type=format_type,
+        highlight_correct=None, timer_value=None,
+        question_num=question_num, total_questions=total_questions, score=current_score,
+    )
+    scenes.append((frame_pause, None, config.TIMER_PAUSE_BEFORE))
+
+    # ── Scene 2: Timer countdown ──────────────────────────────────────────────
     for t in range(config.TIMER_DURATION, 0, -1):
         frame_t = render_question_frame(
             question=question, options=options, format_type=format_type,
             highlight_correct=None, timer_value=t,
             question_num=question_num, total_questions=total_questions, score=current_score,
         )
-        scenes.append((frame_t, tick_path, 1.0))
+        scenes.append((frame_t, tick_path, config.TIMER_TICK_DURATION))
 
     # ── Scene 3: Reveal correct answer ───────────────────────────────────────
     reveal_image = prefetched_image
