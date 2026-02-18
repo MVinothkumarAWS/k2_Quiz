@@ -71,10 +71,9 @@ def _png_scene(frame: Image.Image, audio_path: Path, duration: float, work_dir: 
         "-c:a", "aac",
         "-b:a", "128k",
         "-pix_fmt", "yuv420p",
-        "-t", str(duration),
+        "-t", str(duration),   # always hold for full duration even after audio ends
         "-preset", FFMPEG_PRESET,
         "-crf", FFMPEG_CRF,
-        "-shortest",
         str(seg_path),
     ]
     subprocess.run(
