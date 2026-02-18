@@ -49,7 +49,7 @@ IST = timezone(timedelta(hours=5, minutes=30))
 
 # Shorts publish at 05:00, 05:30 … 07:00  (every 30 min)
 # Full video at 07:30
-SHORTS_START_HOUR   = 5
+SHORTS_START_HOUR   = 17   # 5 PM IST
 SHORTS_START_MINUTE = 0
 INTERVAL_MINUTES    = 30
 
