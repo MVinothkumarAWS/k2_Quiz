@@ -1,0 +1,12 @@
+{
+  "title": "Simple Test Quiz",
+  "language": "english",
+  "questions": [
+    {
+      "question": "What is the national bird of India?",
+      "options": ["Eagle", "Peacock", "Pigeon", "Crow"],
+      "correct": 1,
+      "image": "auto"
+    }
+  ]
+}

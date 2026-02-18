@@ -1,0 +1,17 @@
+{
+  "title": "Indian National Symbols Quiz",
+  "language": "tamil",
+  "questions": [
+    {
+      "question": "இந்தியாவின் தேசியப் பறவை எது?",
+      "options": [
+        "கழுகு",
+        "மயில்",
+        "புறா",
+        "காகம்"
+      ],
+      "correct": 1,
+      "image": "auto"
+    }
+  ]
+}

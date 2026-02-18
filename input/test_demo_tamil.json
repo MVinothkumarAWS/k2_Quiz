@@ -1,0 +1,24 @@
+{
+  "title": "Indian National Symbols Quiz",
+  "language": "tamil",
+  "questions": [
+    {
+      "question": "இந்தியாவின் தேசியப் பறவை எது?",
+      "options": ["கழுகு", "மயில்", "புறா", "காகம்"],
+      "correct": 1,
+      "image": "auto"
+    },
+    {
+      "question": "இந்தியாவின் தேசிய விலங்கு எது?",
+      "options": ["சிங்கம்", "யானை", "புலி", "சிறுத்தை"],
+      "correct": 2,
+      "image": "auto"
+    },
+    {
+      "question": "இந்தியாவின் தேசியப் பூ எது?",
+      "options": ["ரோஜா", "தாமரை", "சூரியகாந்தி", "மல்லிகை"],
+      "correct": 1,
+      "image": "auto"
+    }
+  ]
+}

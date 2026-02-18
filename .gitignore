@@ -1,9 +1,39 @@
+# Output artifacts
 output/
 images/
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+
+# Environment & secrets (never commit these)
 .env
+client_secret.json
+youtube_token.json
+
+# Media files generated at runtime
 *.mp3
 *.mp4
+
+# Logs & temporary files
+*.log
+generation_log.txt
+upload_test_output.txt
+nul
+
+# OS artifacts
 .DS_Store
-venv/
+Thumbs.db
+
+# IDE / tool settings
+.claude/settings.local.json
+.vscode/
+.idea/
+
+# Test cache
+.pytest_cache/
