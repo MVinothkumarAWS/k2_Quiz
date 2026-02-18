@@ -69,6 +69,7 @@ def _png_scene(frame: Image.Image, audio_path: Path, duration: float, work_dir: 
         "-c:v", "libx264",
         "-tune", "stillimage",
         "-c:a", "aac",
+        "-ar", "44100",        # force consistent sample rate across all segments
         "-b:a", "128k",
         "-pix_fmt", "yuv420p",
         "-t", str(duration),   # always hold for full duration even after audio ends
@@ -98,10 +99,11 @@ def _silent_scene(frame: Image.Image, duration: float, work_dir: Path, idx: int)
         FFMPEG, "-y",
         "-loop", "1",
         "-i", str(png_path),
-        "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
+        "-f", "lavfi", "-i", "anullsrc=channel_layout=mono:sample_rate=44100",
         "-c:v", "libx264",
         "-tune", "stillimage",
         "-c:a", "aac",
+        "-ar", "44100",        # force consistent sample rate across all segments
         "-b:a", "128k",
         "-pix_fmt", "yuv420p",
         "-t", str(duration),
