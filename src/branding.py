@@ -256,22 +256,13 @@ def _get_cached_logo_overlay(width: int, height: int) -> tuple:
 
 def apply_watermark(frame: Image.Image) -> Image.Image:
     """
-    Apply two branding layers to a frame:
-      1. Diagonal semi-transparent 'K2_Quiz' text tile (background watermark)
-      2. Channel logo in the bottom-right corner
-
-    Both layers are cached — only computed once per unique frame size.
-    Works with both Shorts (1080×1920) and Full (1920×1080) frames.
+    Apply channel logo branding to the bottom-right corner of a frame.
     Returns a new RGB image.
     """
     frame_rgba = frame.convert("RGBA")
     width, height = frame_rgba.size
 
-    # ── Layer 1: diagonal text watermark (cached) ────────────────────────────
-    wm_layer = _get_cached_watermark(width, height)
-    frame_rgba = Image.alpha_composite(frame_rgba, wm_layer)
-
-    # ── Layer 2: logo corner (cached) ────────────────────────────────────────
+    # Corner logo only — diagonal text tiles removed (logo is sufficient branding)
     logo_overlay, lx, ly = _get_cached_logo_overlay(width, height)
     frame_rgba.alpha_composite(logo_overlay, dest=(lx, ly))
 
@@ -347,9 +338,10 @@ def draw_question_badge(
     cx: int,
     cy: int,
     radius: int = 30,
+    number: int = None,
 ) -> None:
     """
-    Draw an orange circle with a '?' — used as the question indicator.
+    Draw an orange circle with the question number (or '?' if no number given).
     """
     draw = ImageDraw.Draw(frame)
     orange = (255, 107, 53)
@@ -359,12 +351,14 @@ def draw_question_badge(
         fill=orange,
     )
 
-    q_font = _get_plain_font(int(radius * 1.2), bold=True)
-    bbox = q_font.getbbox("?")
+    label = str(number) if number is not None else "?"
+    font_size = int(radius * 1.2) if number is None else int(radius * 1.0)
+    q_font = _get_plain_font(font_size, bold=True)
+    bbox = q_font.getbbox(label)
     qw, qh = bbox[2] - bbox[0], bbox[3] - bbox[1]
     draw.text(
         (cx - qw // 2, cy - qh // 2),
-        "?",
+        label,
         font=q_font,
         fill=(255, 255, 255),
     )

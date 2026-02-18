@@ -165,7 +165,8 @@ def render_question_frame(
 
     if format_type == "shorts":
         frame = _render_shorts_frame(
-            frame, draw, question, options, highlight_correct, timer_value, show_image
+            frame, draw, question, options, highlight_correct, timer_value, show_image,
+            question_num=question_num,
         )
     else:
         frame = _render_full_frame(
@@ -187,6 +188,7 @@ def _render_shorts_frame(
     highlight_correct: Optional[int],
     timer_value: Optional[int],
     show_image: Optional[Image.Image] = None,
+    question_num: Optional[int] = None,
 ) -> Image.Image:
     """Render shorts format frame."""
     width, height = frame.size
@@ -218,8 +220,9 @@ def _render_shorts_frame(
     content_h = q_h + gap + options_total_h
     y = max(100, (height - content_h) // 3)  # upper-third centering
 
-    # Draw question badge (orange ❓ circle) at left edge
-    draw_question_badge(frame, padding + badge_r, y + badge_r, radius=badge_r)
+    # Draw question badge (orange circle with number) at left edge
+    draw_question_badge(frame, padding + badge_r, y + badge_r, radius=badge_r,
+                        number=question_num)
     draw = ImageDraw.Draw(frame)
 
     # Draw question text (GDI handles word-wrapping internally)
@@ -269,27 +272,46 @@ def _render_shorts_frame(
                                color=hex_to_rgb(config.COLORS["background"]))
             draw = ImageDraw.Draw(frame)
 
-    # Timer
+    # Timer — clock emoji + number, centered together
     if timer_value is not None:
-        timer_y = height - 140
-        timer_text = f"{timer_value}"
-        bbox = timer_font.getbbox(timer_text)
-        timer_x = (width - (bbox[2] - bbox[0])) // 2
-        # High-contrast badge so countdown is always visible.
+        from src.branding import draw_emoji as _draw_emoji
+        timer_y = height - 160
+        timer_text = str(timer_value)
+        emoji_char = "⏱"
+        emoji_size = config.FONT_TIMER_SIZE
+
+        # Measure number
+        num_bbox = timer_font.getbbox(timer_text)
+        num_w = num_bbox[2] - num_bbox[0]
+        num_h = num_bbox[3] - num_bbox[1]
+
+        # Emoji is roughly square at emoji_size
+        gap = 12
+        total_w = emoji_size + gap + num_w
         badge_pad = 18
-        badge_w = (bbox[2] - bbox[0]) + badge_pad * 2
-        badge_h = (bbox[3] - bbox[1]) + badge_pad * 2
+
+        start_x = (width - total_w) // 2
+
+        # Draw dark background badge behind both
         draw.rounded_rectangle(
             [
-                timer_x - badge_pad,
+                start_x - badge_pad,
                 timer_y - badge_pad,
-                timer_x - badge_pad + badge_w,
-                timer_y - badge_pad + badge_h,
+                start_x + total_w + badge_pad,
+                timer_y + max(emoji_size, num_h) + badge_pad,
             ],
             radius=20,
             fill=(0, 0, 0),
         )
-        draw.text((timer_x, timer_y), timer_text, font=timer_font, fill=timer_color)
+
+        # Draw clock emoji
+        _draw_emoji(frame, emoji_char, start_x, timer_y, size=emoji_size, color=timer_color)
+        draw = ImageDraw.Draw(frame)  # refresh after emoji draw
+
+        # Draw number to the right of emoji
+        num_x = start_x + emoji_size + gap
+        num_y = timer_y + (emoji_size - num_h) // 2
+        draw.text((num_x, num_y), timer_text, font=timer_font, fill=timer_color)
 
     # Image at bottom (during reveal phase)
     if show_image is not None:

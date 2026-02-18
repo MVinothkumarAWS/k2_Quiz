@@ -261,6 +261,8 @@ def generate_shorts_video(
                 question_data=q_data,
                 format_type="shorts",
                 language=language,
+                question_num=local_idx + 1,
+                total_questions=len(batch),
                 audio_map=audio_map,
                 question_idx=global_idx,
                 prefetched_image=image_map.get(global_idx),
