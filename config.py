@@ -19,7 +19,7 @@ COLORS = {
 
 # Timing (seconds)
 TIMER_DURATION = 5          # number of countdown ticks (5 → 1)
-TIMER_TICK_DURATION = 1.5   # seconds per countdown tick (1.5s gives comfortable pacing)
+TIMER_TICK_DURATION = 1.2   # seconds per countdown tick
 TIMER_PAUSE_BEFORE = 0.8    # silent pause after question audio before countdown starts
 FADE_DURATION = 0.5
 OPTION_SLIDE_DURATION = 0.3

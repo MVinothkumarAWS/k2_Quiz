@@ -2,15 +2,15 @@
 """
 K2 Quiz — Daily Automated Pipeline
 ====================================
-Generates 10 Tamil GK questions → 5 Shorts (2 each) + 1 Full video,
+Generates 10 Tamil GK questions → 10 Shorts (1 each) + 1 Full video,
 then schedules them on YouTube to auto-publish starting at 05:00 IST:
 
-  05:00  Short #1   (questions 1-2)
-  05:30  Short #2   (questions 3-4)
-  06:00  Short #3   (questions 5-6)
-  06:30  Short #4   (questions 7-8)
-  07:00  Short #5   (questions 9-10)
-  07:30  Full video (all 10 questions)
+  05:00  Short #1   (question 1)
+  05:30  Short #2   (question 2)
+  06:00  Short #3   (question 3)
+  ...
+  09:30  Short #10  (question 10)
+  10:00  Full video (all 10 questions)
 
 No duplicate questions — every question is stored in SQLite and never reused.
 
