@@ -32,10 +32,17 @@ async def generate_speech(
     if voice is None:
         voice = config.VOICES["tamil"]
 
-    communicate = edge_tts.Communicate(text, voice)
-    await communicate.save(str(output_path))
-
-    return output_path
+    last_err = None
+    for attempt in range(3):
+        try:
+            communicate = edge_tts.Communicate(text, voice)
+            await communicate.save(str(output_path))
+            return output_path
+        except Exception as e:
+            last_err = e
+            if attempt < 2:
+                await asyncio.sleep(2 ** attempt)   # 1s then 2s backoff
+    raise last_err
 
 
 def generate_speech_sync(

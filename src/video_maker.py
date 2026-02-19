@@ -39,18 +39,25 @@ async def _gen_all_audio_async(questions_data: list[dict], language: str, format
     q_paths = {i: tmp_dir / f"q_{i}.mp3" for i in range(len(questions_data))}
     a_paths = {i: tmp_dir / f"a_{i}.mp3" for i in range(len(questions_data))}
 
-    # Build all async tasks
+    # Semaphore limits concurrent TTS connections to avoid rate-limiting from Edge TTS
+    semaphore = asyncio.Semaphore(3)
+
+    async def _sem_wrap(coro):
+        async with semaphore:
+            return await coro
+
+    # Build all async tasks (rate-limited)
     tasks = []
 
     # Engagement audio (once)
-    tasks.append(generate_engagement_audio(engage_path, language, format_type))
+    tasks.append(_sem_wrap(generate_engagement_audio(engage_path, language, format_type)))
 
     # Per-question audio
     for i, q in enumerate(questions_data):
-        tasks.append(generate_question_audio(q["question"], q["options"], q_paths[i], language))
-        tasks.append(generate_answer_audio(q["correct"], q["options"][q["correct"]], a_paths[i], language))
+        tasks.append(_sem_wrap(generate_question_audio(q["question"], q["options"], q_paths[i], language)))
+        tasks.append(_sem_wrap(generate_answer_audio(q["correct"], q["options"][q["correct"]], a_paths[i], language)))
 
-    # Run all TTS calls concurrently
+    # Run all TTS calls concurrently (max 3 at a time)
     await asyncio.gather(*tasks)
 
     # Generate tick sound locally (no network)
