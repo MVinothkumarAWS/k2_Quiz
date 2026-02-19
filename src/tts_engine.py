@@ -72,7 +72,11 @@ async def generate_question_audio(
     Returns:
         Path to the generated audio file
     """
-    full_text = question + ". யோசித்து சொல்லுங்கள்."
+    labels = ["A", "B", "C", "D"]
+    full_text = question + ". "
+    for label, opt in zip(labels, options):
+        full_text += f"{label}. {opt}. "
+    full_text += "யோசித்து சொல்லுங்கள்."
 
     return await generate_speech(full_text, output_path)
 

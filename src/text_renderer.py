@@ -362,8 +362,9 @@ def _render_full_frame(
     timer_font = get_font(config.FONT_TIMER_SIZE, bold=True)
     info_font = get_font(36)
 
-    # Layout: Left side for question/options, right side for image
-    left_width = int(width * 0.55)
+    # Layout: full width when no image, split 55/45 only when image present
+    has_image = show_image is not None
+    left_width = int(width * 0.55) if has_image else (width - padding)
     right_start = left_width + 40
 
     # Question at top — use GDI for correct Tamil rendering
@@ -442,19 +443,42 @@ def _render_full_frame(
         counter_text = f"Q: {question_num}/{total_questions}"
         draw.text((padding, bottom_y), counter_text, font=info_font, fill=text_color)
 
-    # Timer (center)
+    # Timer (center) — use draw_emoji for ⏱ to avoid box rendering
     if timer_value is not None:
-        timer_text = f"⏱ {timer_value}"
-        bbox = timer_font.getbbox(timer_text)
-        timer_x = (width - (bbox[2] - bbox[0])) // 2
-        draw.text((timer_x, bottom_y - 20), timer_text, font=timer_font, fill=timer_color)
+        from src.branding import draw_emoji as _draw_emoji
+        timer_text = str(timer_value)
+        emoji_char = "⏱"
+        emoji_size = config.FONT_TIMER_SIZE
+        num_bbox = timer_font.getbbox(timer_text)
+        num_w = num_bbox[2] - num_bbox[0]
+        num_h = num_bbox[3] - num_bbox[1]
+        gap = 12
+        total_w = emoji_size + gap + num_w
+        badge_pad = 14
+        timer_y = bottom_y - 20
+        start_x = (width - total_w) // 2
+        draw.rounded_rectangle(
+            [start_x - badge_pad, timer_y - badge_pad,
+             start_x + total_w + badge_pad, timer_y + max(emoji_size, num_h) + badge_pad],
+            radius=16, fill=(0, 0, 0),
+        )
+        _draw_emoji(frame, emoji_char, start_x, timer_y, size=emoji_size, color=timer_color)
+        draw = ImageDraw.Draw(frame)
+        num_x = start_x + emoji_size + gap
+        num_y = timer_y + (emoji_size - num_h) // 2
+        draw.text((num_x, num_y), timer_text, font=timer_font, fill=timer_color)
 
-    # Score (right)
+    # Score (right) — draw text + correct badge separately to avoid ✓ rendering as box
     if score is not None:
-        score_text = f"Score: {score} ✓"
+        score_text = f"Score: {score}"
         bbox = info_font.getbbox(score_text)
-        score_x = width - padding - (bbox[2] - bbox[0])
+        score_x = width - padding - (bbox[2] - bbox[0]) - 50
         draw.text((score_x, bottom_y), score_text, font=info_font, fill=correct_color)
+        badge_cx = width - padding - 20
+        badge_cy = bottom_y + (bbox[3] - bbox[1]) // 2
+        draw_correct_badge(frame, badge_cx, badge_cy, radius=18,
+                           color=hex_to_rgb(config.COLORS["background"]))
+        draw = ImageDraw.Draw(frame)
 
     return frame
 
