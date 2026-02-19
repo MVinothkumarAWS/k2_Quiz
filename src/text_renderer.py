@@ -93,7 +93,10 @@ def get_font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
 
     for font_path in font_paths:
         if font_path.exists():
-            return ImageFont.truetype(str(font_path), size)
+            try:
+                return ImageFont.truetype(str(font_path), size, layout_engine=ImageFont.Layout.RAQM)
+            except Exception:
+                return ImageFont.truetype(str(font_path), size)
 
     return ImageFont.load_default()
 
@@ -261,8 +264,9 @@ def _render_shorts_frame(
         _, opt_th = _measure_text(option_display, option_font, opt_size, max_text_width - 80)
         text_x = padding + 30
         text_y = opt_y + (option_height - opt_th) // 2
+        opt_text_color = (0, 0, 0) if (highlight_correct is not None and i == highlight_correct) else text_color
         _draw_text(frame, text_x, text_y, option_display, option_font, opt_size,
-                   text_color, width - padding - text_x - 80)
+                   opt_text_color, width - padding - text_x - 80)
         draw = ImageDraw.Draw(frame)  # refresh after GDI
 
         # ✓ badge on correct option (right side of box)
@@ -369,7 +373,7 @@ def _render_full_frame(
     q_size = config.FONT_QUESTION_SIZE
 
     y = 100
-    draw_question_badge(frame, padding + badge_r, y + badge_r, radius=badge_r)
+    draw_question_badge(frame, padding + badge_r, y + badge_r, radius=badge_r, number=question_num)
     _draw_text(frame, padding + badge_margin, y, question, question_font, q_size,
                text_color, max_text_width, bold=True)
     _, q_h = _measure_text(question, question_font, q_size, max_text_width, bold=True)
@@ -403,8 +407,9 @@ def _render_full_frame(
         _, opt_th = _measure_text(option_display, option_font, opt_size, left_width - padding - 70)
         text_x = padding + 25
         text_y = opt_y + (option_height - opt_th) // 2
+        opt_text_color = (0, 0, 0) if (highlight_correct is not None and i == highlight_correct) else text_color
         _draw_text(frame, text_x, text_y, option_display, option_font, opt_size,
-                   text_color, left_width - text_x - 70)
+                   opt_text_color, left_width - text_x - 70)
         draw = ImageDraw.Draw(frame)
 
         # ✓ badge on correct option
@@ -525,7 +530,7 @@ def render_engagement_frame(format_type: str, language: str = "tamil") -> Image.
 
     if format_type == "shorts":
         # Shorts layout (vertical)
-        y_offset = center_y - 350
+        y_offset = center_y - 300
 
         # Emoji icon row: 👍 💬 📢 🔔
         icon_size = 70
@@ -588,7 +593,9 @@ def render_engagement_frame(format_type: str, language: str = "tamil") -> Image.
         draw.text((x, y_offset), config.CHANNEL_NAME, font=channel_font, fill=text_color)
         y_offset += 140
 
-        # Score prompt (GDI for Tamil)
+        # Score prompt (GDI for Tamil) — clamp to keep within frame
+        bottom_margin = 60
+        y_offset = min(y_offset, height - bottom_margin - 40)
         tw, _ = _measure_text(score_text, sub_font, 40, width)
         x = (width - tw) // 2
         _draw_text(frame, x, y_offset, score_text, sub_font, 40, text_color, width)

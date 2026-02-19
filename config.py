@@ -27,7 +27,7 @@ PAUSE_AFTER_REVEAL = 1.0
 
 # TTS Voice (Tamil only)
 VOICES = {
-    "tamil": "ta-IN-ValluvarNeural",
+    "tamil": "ta-IN-PallaviNeural",
 }
 
 # Full video settings

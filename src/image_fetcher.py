@@ -14,10 +14,14 @@ IMAGES_DIR.mkdir(exist_ok=True)
 
 
 def sanitize_filename(query: str) -> str:
-    """Convert query to safe filename."""
-    sanitized = re.sub(r"[^\w\s-]", "", query.lower())
-    sanitized = re.sub(r"[\s-]+", "_", sanitized)
-    return sanitized.strip("_")
+    """Convert query to safe ASCII filename (handles Tamil/Unicode safely)."""
+    import hashlib
+    ascii_part = query.encode("ascii", "ignore").decode("ascii").lower()
+    sanitized = re.sub(r"[^\w\s-]", "", ascii_part)
+    sanitized = re.sub(r"[\s-]+", "_", sanitized).strip("_")
+    if not sanitized:
+        sanitized = hashlib.md5(query.encode("utf-8")).hexdigest()[:12]
+    return sanitized
 
 
 def get_cached_image_path(query: str) -> Path:
@@ -261,6 +265,10 @@ def fetch_image_for_answer(correct_answer: str, image_setting: str = "auto") -> 
         return None
 
     if image_setting == "auto":
+        # Skip image fetch for numeric answers (e.g. "12 ஆண்டுகளுக்கு", "2 வருடம்...")
+        import re
+        if re.match(r'^\d', correct_answer.strip()):
+            return None
         fetched = fetch_image(correct_answer)
         if fetched:
             return fetched

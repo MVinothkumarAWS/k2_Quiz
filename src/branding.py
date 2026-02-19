@@ -20,9 +20,12 @@ import config
 def _get_emoji_font(size: int) -> ImageFont.FreeTypeFont:
     """Return an emoji-capable font. Falls back to default."""
     candidates = [
-        "seguiemj.ttf",                                        # Windows Segoe UI Emoji
-        "NotoColorEmoji.ttf",                                  # Linux / Android
-        "/System/Library/Fonts/Apple Color Emoji.ttc",        # macOS
+        "seguiemj.ttf",                                                          # Windows
+        "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf",                    # Ubuntu apt
+        "/usr/share/fonts/opentype/noto/NotoColorEmoji.ttf",                    # Ubuntu alt
+        "/usr/share/fonts/noto/NotoColorEmoji.ttf",                             # Ubuntu alt 2
+        "NotoColorEmoji.ttf",                                                    # system PATH
+        "/System/Library/Fonts/Apple Color Emoji.ttc",                          # macOS
     ]
     for name in candidates:
         try:
@@ -36,9 +39,9 @@ def _get_emoji_font(size: int) -> ImageFont.FreeTypeFont:
 def _get_plain_font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
     """Return a plain (non-emoji) font for labels."""
     candidates = [
+        Path("fonts/NotoSansTamil/NotoSansTamil-Bold.ttf") if bold else Path("fonts/NotoSansTamil/NotoSansTamil-Regular.ttf"),
         Path("fonts/Poppins/Poppins-Bold.ttf") if bold else Path("fonts/Poppins/Poppins-Medium.ttf"),
         Path("fonts/Poppins-Bold.ttf") if bold else Path("fonts/Poppins-Medium.ttf"),
-        Path("fonts/NotoSansTamil/NotoSansTamil-Bold.ttf"),
     ]
     for p in candidates:
         if p.exists():
