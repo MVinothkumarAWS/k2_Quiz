@@ -46,9 +46,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: data/questions.db
-          key: questions-db-${{ github.run_number }}
+          key: questions-db-v2-${{ github.run_number }}
           restore-keys: |
-            questions-db-
+            questions-db-v2-
 
       - name: Write YouTube credentials from secrets
         env:
