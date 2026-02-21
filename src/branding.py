@@ -316,6 +316,16 @@ def apply_watermark(frame: Image.Image) -> Image.Image:
 
 # ─── Emoji indicators ────────────────────────────────────────────────────────
 
+# Map emoji character → bundled Twemoji PNG filename (assets/emoji/)
+_EMOJI_PNG_MAP = {
+    "\U0001F44D": "1f44d.png",   # 👍
+    "\U0001F4AC": "1f4ac.png",   # 💬
+    "\U0001F4E2": "1f4e2.png",   # 📢
+    "\U0001F514": "1f514.png",   # 🔔
+    "\u23F1":     "23f1.png",    # ⏱
+}
+
+
 def draw_emoji(
     frame: Image.Image,
     emoji_char: str,
@@ -325,22 +335,29 @@ def draw_emoji(
     color: Tuple[int, int, int] = (255, 255, 255),
 ) -> Tuple[int, int]:
     """
-    Draw an emoji character using the system emoji font.
-    Falls back to a colored circle if emoji font unavailable.
-    Returns (width, height) of rendered glyph.
+    Draw an emoji by compositing a bundled Twemoji PNG (cross-platform).
+    Falls back to a colored circle if the PNG is not found.
+    Returns (width, height) of rendered area.
     """
-    try:
-        font = _get_emoji_font(size)
-        draw = ImageDraw.Draw(frame)
-        draw.text((x, y), emoji_char, font=font, embedded_color=True)
-        bbox = font.getbbox(emoji_char)
-        return bbox[2] - bbox[0], bbox[3] - bbox[1]
-    except Exception:
-        # Fallback: colored dot
-        r = size // 3
-        draw = ImageDraw.Draw(frame)
-        draw.ellipse([x, y, x + r * 2, y + r * 2], fill=color)
-        return r * 2, r * 2
+    png_name = _EMOJI_PNG_MAP.get(emoji_char)
+    if png_name:
+        png_path = Path("assets/emoji") / png_name
+        if png_path.exists():
+            try:
+                emoji_img = Image.open(str(png_path)).convert("RGBA")
+                emoji_img = emoji_img.resize((size, size), Image.Resampling.LANCZOS)
+                frame_rgba = frame.convert("RGBA")
+                frame_rgba.alpha_composite(emoji_img, dest=(max(0, x), max(0, y)))
+                frame.paste(frame_rgba.convert("RGB"))
+                return size, size
+            except Exception:
+                pass
+
+    # Fallback: colored circle
+    draw = ImageDraw.Draw(frame)
+    r = size // 2
+    draw.ellipse([x, y, x + size, y + size], fill=color)
+    return size, size
 
 
 def draw_correct_badge(
