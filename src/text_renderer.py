@@ -48,9 +48,18 @@ def _draw_text(
         return _gdi.draw_text(frame, x, y, text, font_name, font_size, color, max_width, bold)
     else:
         draw = ImageDraw.Draw(frame)
-        draw.text((x, y), text, font=font, fill=color)
-        bbox = font.getbbox(text)
-        return bbox[2] - bbox[0], bbox[3] - bbox[1]
+        lines = wrap_text(text, font, max_width)
+        line_h = font_size
+        line_spacing = max(4, int(font_size * 0.2))
+        y_cur = y
+        max_w = 0
+        for line in lines:
+            draw.text((x, y_cur), line, font=font, fill=color)
+            b = font.getbbox(line)
+            max_w = max(max_w, b[2] - b[0])
+            y_cur += line_h + line_spacing
+        total_h = y_cur - y - line_spacing  # remove trailing spacing
+        return max_w, max(total_h, font_size)
 
 
 def _measure_text(
@@ -65,8 +74,16 @@ def _measure_text(
         font_name = _GDI_FONT_BOLD if bold else _GDI_FONT_REGULAR
         return _gdi.measure_text(text, font_name, font_size, max_width, bold)
     else:
-        bbox = font.getbbox(text)
-        return bbox[2] - bbox[0], bbox[3] - bbox[1]
+        lines = wrap_text(text, font, max_width)
+        line_h = font_size
+        line_spacing = max(4, int(font_size * 0.2))
+        max_w = 0
+        total_h = 0
+        for i, line in enumerate(lines):
+            b = font.getbbox(line)
+            max_w = max(max_w, b[2] - b[0])
+            total_h += line_h + (line_spacing if i < len(lines) - 1 else 0)
+        return max_w, max(total_h, font_size)
 
 
 def hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
