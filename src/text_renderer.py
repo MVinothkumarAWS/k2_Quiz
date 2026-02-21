@@ -390,19 +390,22 @@ def _render_full_frame(
     max_text_width = left_width - padding - badge_margin
     q_size = config.FONT_QUESTION_SIZE
 
-    y = 100
+    # Options layout — anchor from bottom so they never overlap the bottom bar
+    option_labels = ["A", "B", "C", "D"]
+    option_height = 70
+    option_spacing = 10
+    bottom_y = height - 80
+    options_area_h = 4 * option_height + 3 * option_spacing   # = 310
+    options_start_y = bottom_y - options_area_h - 10          # = always fits
+
+    # Question — draw from top, limited to the space above the options
+    y = 80
     draw_question_badge(frame, padding + badge_r, y + badge_r, radius=badge_r, number=question_num)
     _draw_text(frame, padding + badge_margin, y, question, question_font, q_size,
                text_color, max_text_width, bold=True)
     _, q_h = _measure_text(question, question_font, q_size, max_text_width, bold=True)
     y += q_h + 15
     draw = ImageDraw.Draw(frame)
-
-    # Options on left
-    option_labels = ["A", "B", "C", "D"]
-    option_height = 80
-    option_spacing = 15
-    options_start_y = y + 50
 
     for i, (label, option_text) in enumerate(zip(option_labels, options)):
         opt_y = options_start_y + (i * (option_height + option_spacing))
@@ -453,7 +456,7 @@ def _render_full_frame(
         draw = ImageDraw.Draw(frame)
 
     # Bottom bar: question counter, timer, score
-    bottom_y = height - 100
+    # (bottom_y already defined above as height - 80)
 
     # Question counter
     if question_num is not None and total_questions is not None:
